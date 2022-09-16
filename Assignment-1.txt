@@ -116,7 +116,7 @@ f. Calculate quartelry sales for each city
 hive> select CITY,QTR_ID sum(SALES) as total_sales from sales_order_orc group by CITY, QTR_ID order by CITY asc;
 
 g. Find a month for each year in which maximum number of quantities were sold
-hive > select MONTH_ID, YEAR_ID ,max(QUANTITYORDERED) as max_quantity from sales_order_orc group by MONTH_ID, YEAR_ID;
+hive >select YEAR_ID,MONTH_ID,sum(QUANTITYORDERED) as total_quantity from sales_order_orc group by YEAR_ID,MONTH_ID ;
 
 
 
