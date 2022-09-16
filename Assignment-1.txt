@@ -1,6 +1,8 @@
 # creating a sales_order_data.csv file into local
 vim sales_order_data.csv
 
+# coping row data from https://raw.githubusercontent.com/shashank-mishra219/Hive-Class/main/sales_order_data.csv
+
 # copying sales_order_data.csv file into hadoop file system
 hdfs dfs -put /home/cloudera/sales_order_data.csv /tmp/hive_data/
 
