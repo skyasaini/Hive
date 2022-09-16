@@ -86,16 +86,37 @@ from sales_order_csv insert overwrite table sales_order_orc select *;
 
 select * from sales_order_orc limit 10
 
+# Performing  below menioned queries on "sales_order_orc" table :
 
+a. Calculate total sales per year
 
+select year_id as year , sum(sales) as total_sales from sales_order_orc group by year_id;
 
+b. Find a product for which maximum orders were placed
 
+hive> select PRODUCTCODE ,sum(QUANTITYORDERED) as total_no_of_sales from sales_order_orc group by PRODUCTCODE  order by total_no_of_sales asc;
+ 
+c. Calculate the total sales for each quarter
 
+hive> select QTR_ID, sum(SALES) as total_sales from sales_order_orc group by QTR_ID order by total_sales asc;
 
+d.In which quarter sales was minimum
 
+Ans. 3rd Quarter.
 
+e.In which country sales was maximum and in which country sales was minimum
 
+hive> select COUNTRY, sum(SALES) as total_sales from sales_order_orc group by country order by total_sales asc;
 
+Ans. maximum Sales = USA
+     minimum Sales = Ireland
+
+f. Calculate quartelry sales for each city
+
+hive> select CITY,QTR_ID sum(SALES) as total_sales from sales_order_orc group by CITY, QTR_ID order by CITY asc;
+
+g. Find a month for each year in which maximum number of quantities were sold
+hive > select MONTH_ID, YEAR_ID ,max(QUANTITYORDERED) as max_quantity from sales_order_orc group by MONTH_ID, YEAR_ID;
 
 
 
