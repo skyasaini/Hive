@@ -1,0 +1,78 @@
+1. Downloaded the csv files from urls 
+      file 1: https://drive.google.com/file/d/1WrG-9qv6atP-W3P_-gYln1hHyFKRKMHP/view
+      file 1: https://drive.google.com/file/d/1-JIPCZ34dyN6k9CqJa-Y8yxIGq6vTVXU/view
+      
+2. putting files into hdfs location
+        hdfs dfs -put /tmp/hive_data/AgentLogingReport.csv /tmp/hive_data
+        hdfs dfs -put /tmp/hive_data/AgentPerformance.csv /tmp/hive_data
+        
+3. checking the files into hdfs location 
+        hdfs dfs -ls /tmp/hive_data
+        
+4.creating schema in the hive
+        create table agent_performance
+    > (
+    > sr_no int,
+    > date string,
+    > name string,
+    > total_chats int,
+    > avg_responce_time string,
+    > avg_resolution_time string,
+    > avg_rating float,
+    > total_feedback int )
+    > row format delimited
+    > fields terminated by ','
+    > tblproperties("skip.header.line.count"="1") ;
+        
+5.loading data into hive table from hdfs location
+    load data inpath '/tmp/hive_data/AgentPerformance.csv' into table agent_performance ;
+    
+    
+6.List of all agents' names.
+    select name from agent_performance ;
+
+
+7.Find out agent average rating.
+    select name, avg(avg_rating) from  agent_performance group by (name) ;
+    
+8.Total working days for each agents
+    select name ,count(date) as no_of_days_workded from agent_performance group by (name)
+
+9.Total query that each agent have taken 
+    select name ,sum(total_chats) as total_query from agent_performance group by (name);
+
+
+10.Total Feedback that each agent have received
+    select name ,sum(total_feedback) as total_feedback from agent_performance group by (name);
+
+
+11.Agent name who have average rating between 3.5 to 4   
+    select name from agent_performance where avg_rating between 3.5 and 4 group by name ;
+
+12.Agent name who have rating more than 4.5
+    select name from agent_performance where avg_rating > 4.5 group by name ; 
+
+13.Agent name who have rating less than 3.5
+    select name from agent_performance where avg_rating < 3.5 group by name  ;
+
+14.How many feedback agents have received more than 4.5 average 
+    select name, sum(total_feedback) as total_feedback from agent_performance where avg_rating > 4.5 group by name; 
+
+15.average weekly response time for each agent
+
+
+
+16.average weekly resolution time for each agents 
+
+
+
+17.Find the number of chat on which they have received a feedback 
+
+
+
+18.Total contribution hour for each and every agents weekly basis 
+
+ 
+
+19.Perform inner join, left join and right join based on the agent column and after joining the table export that data into your local system.
+20.Perform partitioning on top of the agent column and then on top of that perform bucketing for each partitioning.
