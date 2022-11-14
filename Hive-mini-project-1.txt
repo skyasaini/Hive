@@ -58,21 +58,50 @@
 14.How many feedback agents have received more than 4.5 average 
     select name, sum(total_feedback) as total_feedback from agent_performance where avg_rating > 4.5 group by name; 
 
-15.average weekly response time for each agent
+15.average weekly response time for each agent in minutes
 
+      select name, (sum(unix_timestamp(avg_responce_time,'HH:mm:ss')-28800))/(60*7) as weekly_responce  from agent_performance group by name;
+      
+      ------------------------------------------------------------------OR--------------------------------------------------
 
+      create table agent1_time as select name, unix_timestamp(concat(date,' ',avg_responce_time),'m/dd/yyyy HH:mm:ss') as a_responce ,
+      unix_timestamp(concat(date,' ',avg_resolution_time),'m/dd/yyy HH:mm:ss') as a_resolution from  agent_performance;
+      
+      select name,((sum( minute(from_unixtime(a_responce)))*60) + (sum( second(from_unixtime(a_responce)))))/(60*7) as weekly_responce_time 
+      from agent1_time group by name ;
+                                                             
+16.average weekly resolution time for each agents in minutes
 
-16.average weekly resolution time for each agents 
+      select name, (sum(unix_timestamp(avg_resolution_time,'HH:mm:ss')-28800))/(60*7) as weekly_resolution  from agent_performance group by name;
+      
+       ------------------------------------------------------------------OR--------------------------------------------------
 
-
+      select name,((sum( minute(from_unixtime(a_resolution)))*60) + (sum( second(from_unixtime(a_resolution)))))/(60*7) as weekly_resolution_time 
+      from agent1_time group by name ;
 
 17.Find the number of chat on which they have received a feedback 
+      select name, sum(total_feedback) as total_chat_with_feedback from agent_performance where total_feedback > 0 group by name;
 
 
 
 18.Total contribution hour for each and every agents weekly basis 
-
- 
+      create table agent_login(
+      sr_no int,
+      name string,
+      date string,
+      login_time string,
+      logout_time string,
+      duration string)
+      row format delimited
+      fields terminated by ','
+      tblproperties("skip.header.line.count"="1")
+      
+      load data inpath '/tmp/hive_data/AgentLogingReport.csv' into table agent_login ;
+      
+      select name, (sum(unix_timestamp(duration,'HH:mm:ss')-28800))/(60*60*7) as weekly_duration  from agent_login group by name;
+      
 
 19.Perform inner join, left join and right join based on the agent column and after joining the table export that data into your local system.
+
+
 20.Perform partitioning on top of the agent column and then on top of that perform bucketing for each partitioning.
