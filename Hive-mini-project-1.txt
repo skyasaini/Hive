@@ -102,6 +102,41 @@
       
 
 19.Perform inner join, left join and right join based on the agent column and after joining the table export that data into your local system.
-
+      inner Join : INSERT OVERWRITE LOCAL DIRECTORY '/tmp/hive_data/agent_data/inner_join' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select * from                                    agent_performance as ap inner join agent_login as al on ap.name = al.name 
+      left join : INSERT OVERWRITE LOCAL DIRECTORY '/tmp/hive_data/agent_data/left_join' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select * from agent_performance                   as ap left join agent_login as al on ap.name = al.name
+      right join : INSERT OVERWRITE LOCAL DIRECTORY '/tmp/hive_data/agent_data/right_join' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select * from                                    agent_performance as ap right join agent_login as al on ap.name = al.name
 
 20.Perform partitioning on top of the agent column and then on top of that perform bucketing for each partitioning.
+      
+      create table agent_performance_partition
+      (
+      sr_no int,
+      date string,
+      total_chats int,
+      avg_responce_time string,
+      avg_resolution_time string,
+      avg_rating float,
+      total_feedback int )
+      
+      partitioned by (name string) ;
+      
+      insert overwrite table agent_performance_partition partition(name) select * from agent_performance ;
+      
+      buckeing with partiton :
+      
+      create table agent_performance_partition_with_bucket
+      (
+      sr_no int,
+      date string,
+      total_chats int,
+      avg_responce_time string,
+      avg_resolution_time string,
+      avg_rating float,
+      total_feedback int )
+      partitioned by (name string)
+      clustered  by (sr_no)
+      INTO 2 BUCKETS ;
+       
+      insert overwrite table agent_performance_partition_with_bucket partition(name) select * from agent_performance ;
+            
+
