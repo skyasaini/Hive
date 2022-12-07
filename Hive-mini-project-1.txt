@@ -120,7 +120,8 @@
       
       partitioned by (name string) ;
       
-      insert overwrite table agent_performance_partition partition(name) select * from agent_performance ;
+      insert overwrite table agent_performance_partition partition(name) select sr_no,date,total_chats,avg_responce_time,avg_resolution_time,
+      avg_rating,total_feedback from agent_performance ;
       
       buckeing with partiton :
       
@@ -134,9 +135,11 @@
       avg_rating float,
       total_feedback int )
       partitioned by (name string)
-      clustered  by (sr_no)
-      INTO 2 BUCKETS ;
-       
-      insert overwrite table agent_performance_partition_with_bucket partition(name) select * from agent_performance ;
+      clustered  by (sr_no) sorted by (sr_no) INTO 2 BUCKETS 
+      row format delimited 
+      fields terminated by ',' ;
+      
+      insert overwrite table agent_performance_partition_with_bucket partition(name) select sr_no,date,total_chats,avg_responce_time,avg_resolution_time,
+      avg_rating,total_feedback from agent_performance ;
             
 
