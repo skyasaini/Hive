@@ -68,13 +68,13 @@ hive>            create table parking_violations_issued
 
 Creating Partitions on Violation Country and Buckets on Summons_Number:
 
-            create table parking_violations
+            create table parking_violations_2017
             (
             Summons_Number bigint,
             Plate_ID string,
             Registration_State string,
             Plate_Type string,
-            Issue_Date string,
+            Issue_Date int,
             Violation_Code int,
             Vehicle_Body_Type string,
             Vehicle_Make string,
@@ -123,6 +123,54 @@ Set few properties to enable bucketing and Dynamic partition
             hive>set hive.exec.dynamic.partition=true;
             hive>set hive.exec.dynamic.partition.mode=nonstrict; 
             hive>set hive.enforce.bucketing = true;
+            
+            insert overwrite table parking_violations_2017
+            partition(Violation_County) Select 
+            Summons_Number,
+            Plate_ID,
+            Registration_State,
+            Plate_Type,
+            unix_timestamp(Issue_Date,'MM/DD/YYYY'),
+            Violation_Code,
+            Vehicle_Body_Type,
+            Vehicle_Make,
+            Issuing_Agency,
+            Street_Code1,
+            Street_Code2,
+            Street_Code3,
+            Vehicle_Expiration,
+            Violation_Location,
+            Violation_Precinct,
+            Issuer_Precinct,
+            Issuer_Code,
+            Issuer_Command,
+            Issuer_Squad,
+            Violation_Time,
+            Time_First_Observed,
+            Violation_In_Front_Of_Or_Opposite,
+            House_Number,
+            Street_Name,
+            Intersecting_Street,
+            Date_First_Observed,
+            Law_Section,
+            Sub_Division,
+            Violation_Legal_Code,
+            Days_Parking_In_Effect,
+            From_Hours_In_Effect,
+            To_Hours_In_Effect,
+            Vehicle_Color,
+            Unregistered_Vehicle,
+            Vehicle_Year,
+            Meter_Number,
+            Feet_From_Curb,
+            Violation_Post_Code,
+            Violation_Description,
+            No_Standing_or_Stopping_Violation,
+            Hydrant_Violation,
+            Double_Parking_Violation,
+            Violation_County 
+            from parking_violations_issued 
+            where unix_timestamp(Issue_Date,'MM/DD/YYYY') between unix_timestamp('01/01/2017','MM/DD/YYYY') and unix_timestamp('12/31/2017','MM/DD/YYYY');
 
 The analysis can be divided into two parts:
 
