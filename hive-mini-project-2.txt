@@ -130,7 +130,7 @@ Set few properties to enable bucketing and Dynamic partition
             Plate_ID,
             Registration_State,
             Plate_Type,
-            unix_timestamp(regexp_replace(issue_date, '-','/'),'MM/DD/YYYY'),
+            unix_timestamp(regexp_replace(issue_date, '-','/'),'mm/dd/yyyy'),
             Violation_Code,
             Vehicle_Body_Type,
             Vehicle_Make,
