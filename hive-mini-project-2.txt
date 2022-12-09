@@ -279,4 +279,22 @@ Part-II: Aggregation tasks
 8.) Let’s try and find some seasonality in this data
       a.) First, divide the year into some number of seasons, and find frequencies of tickets for each season. 
           (Hint: A quick Google search reveals the following seasons in NYC: Spring(March, April, March); Summer(June, July, August); Fall(September, October,                    November); Winter(December, January, February))
+            Created View to divide the year into Seasons:
+            Hive>  create view vw_tickets_issued_2017
+                        partitioned on (Violation_Code) 
+                        as
+                        select Issuer_Precinct, 
+                        case 
+                        when MONTH(from_unixtime(Issue_Date)) between 03 and 05 then 'spring' 
+                        when MONTH(from_unixtime(Issue_Date)) between 06 and 08 then 'summer' 
+                        when MONTH(from_unixtime(Issue_Date)) between 09 and 11 then 'autumn' 
+                        when MONTH(from_unixtime(Issue_Date)) in (1,2,12) then 'winter' 
+                        else 'unknown' 
+                        end  as season,
+                        Violation_Code 
+                        from parking_violations_2017;
+            Hive>  select season, count(*) as frequency from vw_tickets_issued_2017 group by season order by frequency desc;
+
       b.)Then, find the 3 most common violations for each of these seasons.
+                        hive> select Violation_Code, count(*) as frequency from vw_tickets_issued_2017 where  
+                                    season = 'spring' group by Violation_Code order by frequency desc limit 3;
