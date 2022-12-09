@@ -68,7 +68,7 @@ hive>            create table parking_violations_issued
 
 Creating Partitions on Violation Country and Buckets on Summons_Number:
 
-            create table parking_violations_2017
+            create table parking_violations
             (
             Summons_Number bigint,
             Plate_ID string,
@@ -124,13 +124,13 @@ Set few properties to enable bucketing and Dynamic partition
             hive>set hive.exec.dynamic.partition.mode=nonstrict; 
             hive>set hive.enforce.bucketing = true;
             
-            insert overwrite table parking_violations_2017
+            insert overwrite table parking_violations
             partition(Violation_County) Select 
             Summons_Number,
             Plate_ID,
             Registration_State,
             Plate_Type,
-            unix_timestamp(Issue_Date,'MM/DD/YYYY'),
+            unix_timestamp(regexp_replace(issue_date, '-','/'),'MM/DD/YYYY'),
             Violation_Code,
             Vehicle_Body_Type,
             Vehicle_Make,
@@ -169,8 +169,9 @@ Set few properties to enable bucketing and Dynamic partition
             Hydrant_Violation,
             Double_Parking_Violation,
             Violation_County 
-            from parking_violations_issued 
-            where unix_timestamp(Issue_Date,'MM/DD/YYYY') between unix_timestamp('01/01/2017','MM/DD/YYYY') and unix_timestamp('12/31/2017','MM/DD/YYYY');
+            from parking_violations_issued;
+            
+            create table parking_violations_2017 as select * from parking_violations where Issue_Date between 1483228800 and 1514678400 
             
 The analysis can be divided into two parts:
 
