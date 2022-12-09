@@ -171,7 +171,7 @@ Set few properties to enable bucketing and Dynamic partition
             Violation_County 
             from parking_violations_issued 
             where unix_timestamp(Issue_Date,'MM/DD/YYYY') between unix_timestamp('01/01/2017','MM/DD/YYYY') and unix_timestamp('12/31/2017','MM/DD/YYYY');
-
+            
 The analysis can be divided into two parts:
 
 Part-I: Examine the data
@@ -226,12 +226,55 @@ Part-II: Aggregation tasks
             
 5.) Find out the properties of parking violations across different times of the day: The Violation Time field is specified in a strange format. 
     Find a way to make this into a time attribute that you can use to divide into groups.
-    
+            Hive> select from_unixtime(unix_timestamp(concat(violation_time,'M'), 'HHmmaaa'),"HH:mmaaa") as date_data from parking_violations_2017 limit 2;
     
 6.) Divide 24 hours into 6 equal discrete bins of time. The intervals you choose are at your discretion. For each of these groups, 
     find the 3 most commonly occurring violations
+            To divide the 24 hrs into 6 equal discrete bins of time , First created view on partitioned table:
+                        hive> create view vw_parking_violations_partitoned_2017
+                                    partitioned on (Violation_Code) 
+                                    as 
+                                    SELECT 
+                                    Summons_Number,
+                                    Violation_Time,
+                                    Issuer_Precinct, 
+                                    case 
+                                    when substring(Violation_Time,1,2) in ('00','01','02','03','12') and upper(substring(Violation_Time,-1))='A' then 1 
+                                    when substring(Violation_Time,1,2) in ('04','05','06','07') and upper(substring(Violation_Time,-1))='A' then 2 
+                                    when substring(Violation_Time,1,2) in ('08','09','10','11') and upper(substring(Violation_Time,-1))='A' then 3 
+                                    when substring(Violation_Time,1,2) in ('12','00','01','02','03') and upper(substring(Violation_Time,-1))='P' then 4 
+                                    when substring(Violation_Time,1,2) in ('04','05','06','07') and upper(substring(Violation_Time,-1))='P' then 5 
+                                    when substring(Violation_Time,1,2) in ('08','09','10','11') and upper(substring(Violation_Time,-1))='P'then 6 
+                                    else null 
+                                    end as Violation_Time_bin,
+                                    Violation_Code 
+                                    from parking_violations_2017 
+                                    where 
+                                    Violation_Time is not null 
+                                    or (length(Violation_Time)=5 and upper(substring(Violation_Time,-1))in ('A','P') 
+                                    and substring(Violation_Time,1,2) in ('00','01','02','03','04','05','06','07', '08','09','10','11','12'));
+                                    
+                        hive> select Violation_Code,Violation_Time_bin, count(*) frequency_violation from vw_parking_violations_partitoned_2017   group by                                              Violation_Code,Violation_Time_bin limit 5;
+                        bin1
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =1 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        bin2
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =2 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        bin3
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =3 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        bin4
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =4 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        bin5
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =5 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        bin6
+                        hive>  select Violation_Code,count(*) frequency_violation from vw_parking_violations_partitoned_2017 where Violation_Time_bin =6 group by                                     Violation_Code order by frequency_violation desc limit 3;
+                        
+
+
 7.) Now, try another direction. For the 3 most commonly occurring violation codes, find the most common times of day 
     (in terms of the bins from the previous part)
+            Hive>  select Violation_Time_bin, count(*) frequency_times from vw_parking_violations_partitoned_2017 where Violation_Code in (21, 38,36) 
+                   group by Violation_Time_bin order by frequency_times desc limit 3;
+
 8.) Let’s try and find some seasonality in this data
       a.) First, divide the year into some number of seasons, and find frequencies of tickets for each season. 
           (Hint: A quick Google search reveals the following seasons in NYC: Spring(March, April, March); Summer(June, July, August); Fall(September, October,                    November); Winter(December, January, February))
