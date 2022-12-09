@@ -194,14 +194,40 @@ Part-I: Examine the data
 Part-II: Aggregation tasks
 
 1.) How often does each violation code occur? (frequency of violation codes - find the top 5)
+            Hive> select count(Violation_Code) as violation_codes_frequency,Violation_Code from parking_violations_2017 group by Violation_Code order by violation_codes_frequency desc limit 5;
+            
+            
 2.) How often does each vehicle body type get a parking ticket? How about the vehicle make? (find the top 5 for both)
+            Hive> select Vehicle_Body_Type,count(summons_number)as Vehicle_body_frequency  from parking_violations_2017 group by Vehicle_Body_Type order by                         Vehicle_body_frequency desc limit 5; 
+            
+            Hive> select Vehicle_make,count(summons_number)as vehicle_make_frequency from parking_violations_2017 group by Vehicle_make order by                                                vehicle_make_frequency desc limit 5; 
+            
 3.) A precinct is a police station that has a certain zone of the city under its command. Find the (5 highest) frequencies of:
       a.) Violating Precincts (this is the precinct of the zone where the violation occurred)
+                        hive> select Violation_Precinct ,count(Violation_Precinct) as violation_precinct_frequency from parking_violations_2017 group by                                        Violation_Precinct order by violation_precinct_frequency desc limit 5;
+      
       b.) Issuer Precincts (this is the precinct that issued the ticket)
+            hive> select issuer_Precinct ,count(issuer_Precinct) as issuer_precinct_frequency from parking_violations_2017 group by  issuer_Precinct order by                                   issuer_precinct_frequency desc limit 5;
+            
 4.) Find the violation code frequency across 3 precincts which have issued the most number of tickets - do these precinct zones have an exceptionally 
     high frequency of certain violation codes?
+            Hive> select Issuer_Precinct,Violation_Code, count(*) as Violation_code_frequency from parking_violations_2017  group by Issuer_Precinct, Violation_Code                            order by Violation_code_frequency desc limit 10;
+    18,19,14 are the three issuer precincts which have the maximum number of violations. Lets dive into the Issuer Precincts one by one.
+    
+            Issuer Precinct 18
+                        Hive> select Issuer_Precinct,Violation_Code, count(*) as Violation_code_frequency from parking_violations_2017 where issuer_precinct = 18                                     group by Issuer_Precinct, Violation_Code order by Violation_code_frequency desc limit 10;
+                        
+            Issuer Precinct 19
+                        Hive> select Issuer_Precinct,Violation_Code, count(*) as Violation_code_frequency from parking_violations_2017 where issuer_precinct = 19                                     group by Issuer_Precinct, Violation_Code order by Violation_code_frequency desc limit 10;
+                        
+            Issuer Precinct 14
+                        hive>select Issuer_Precinct,Violation_Code, count(*) as Violation_code_frequency from parking_violations_2017 where issuer_precinct = 14  group                              by Issuer_Precinct, Violation_Code order by Violation_code_frequency desc limit 10;
+
+            
 5.) Find out the properties of parking violations across different times of the day: The Violation Time field is specified in a strange format. 
     Find a way to make this into a time attribute that you can use to divide into groups.
+    
+    
 6.) Divide 24 hours into 6 equal discrete bins of time. The intervals you choose are at your discretion. For each of these groups, 
     find the 3 most commonly occurring violations
 7.) Now, try another direction. For the 3 most commonly occurring violation codes, find the most common times of day 
